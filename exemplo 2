@@ -1,0 +1,177 @@
+module Main where
+
+import Control.Monad (replicateM)
+import Control.Monad (forever)
+import Graphics.Gloss
+import Graphics.Gloss.Interface.Pure.Game
+import System.Random
+
+data Jogo = Jogo Jogador [Inimigo] [Alcapao] [Estrela] [Colecionavel]
+
+type Jogador = (Int, Int)
+type Inimigo = (Int, Int)
+type Alcapao = (Int, Int)
+type Estrela = (Int, Int)
+type Colecionavel = (Int, Int)
+
+data Opcao = Jogar
+            | Sair
+
+data Menu = Opcoes Opcao
+          | ModoJogo 
+          | VenceuJogo
+
+data Mundo = Mundo { menu :: Menu
+                   , jogo :: Jogo
+                   , imagens :: Imagens
+                   , tempo :: Tempo }
+
+type Tempo = Float
+
+type Imagens = [Picture]
+
+janela :: Display
+janela = InWindow "Donkey Kong" (700, 700) (0, 0)
+
+fr :: Int
+fr = 50
+
+-- inicializa o jogo
+posicaoJogador = (0, (300))
+
+inimigos = [(100, 100), (-200, 50), (50, -150)]
+alcapoes = [(-150, 0), (200, 150)]
+estrelas = [(250, -200), (-100, 200)]
+colecionaveis = [(100, 50), (-50, -100)]
+
+
+loadImages :: IO Imagens
+loadImages = do
+  jogador <- loadBMP "jogador.bmp"
+  inimigo <- loadBMP "inimigo.bmp"
+  alcapao <- loadBMP "alcapao.bmp"
+  estrela <- loadBMP "estrela.bmp"
+  colecionavel <- loadBMP "coleccionavel.bmp"
+  let images = [scale 1 1 jogador, scale 1 1 inimigo, scale 1.5 1.5 alcapao, scale 1 1 estrela, scale 1.5 1.5 colecionavel]
+  return images
+
+
+estadoInicial :: Imagens -> IO Mundo
+estadoInicial imagens = do
+  randomInimigos <- gerarPosicoesAleatorias 3
+  randomAlcapoes <- gerarPosicoesAleatorias 2
+  randomEstrelas <- gerarPosicoesAleatorias 2
+  randomColecionaveis <- gerarPosicoesAleatorias 2
+
+  let jogoInicial = Jogo posicaoJogador randomInimigos randomAlcapoes randomEstrelas randomColecionaveis
+  return $ Mundo (Opcoes Jogar) jogoInicial imagens 0
+
+gerarPosicoesAleatorias :: Int -> IO [(Int, Int)]
+gerarPosicoesAleatorias n = replicateM n $ do
+  x <- randomRIO (-340, 340)
+  y <- randomRIO (-340, 340)
+  return (x, y)
+
+-- desenha o estado do Gloss
+desenhaEstado :: Mundo -> Picture
+desenhaEstado (Mundo VenceuJogo _ imagens t) = desenhaMensagemVitoria t
+desenhaEstado (Mundo (Opcoes op) _ imagens _) = desenhaOpcoes op
+desenhaEstado (Mundo ModoJogo (Jogo (x, y) inimigos alcapoes estrelas colecionaveis) imagens n) =
+  Pictures $ elementosJogo
+  where
+    elementosJogo = map (\j -> desenhaJogador j imagens) [posicaoJogador]
+                    ++ map (\i -> desenhaInimigo i imagens) inimigos
+                    ++ map (\a -> desenhaAlcapao a imagens) alcapoes
+                    ++ map (\e -> desenhaEstrela e imagens) estrelas
+                    ++ map (\c -> desenhaColecionavel c imagens) colecionaveis
+                    
+    i = fromIntegral x
+    j = fromIntegral y
+    
+
+desenhaOpcoes op = case op of
+  Jogar -> Pictures [Translate (-50) 10 $ Color blue $ desenhaOpcao "Jogar",
+                     Translate (-50) (-70) $ desenhaOpcao "Sair"]
+  Sair -> Pictures [Translate (-50) 10 $ desenhaOpcao "Jogar",
+                    Color blue $ Translate (-50) (-70) $ desenhaOpcao "Sair"]
+
+desenhaOpcao opcao = Scale 0.5 0.5 $ Text opcao
+
+desenhaMensagemVitoria :: Float -> Picture
+desenhaMensagemVitoria n = Pictures [
+   Translate (-200) 0 $ Color red $ scale 0.2 0.2 $ Text ("Ganhou em "++ show (round n) ++ " segundos"),
+   Translate 100 (-160) $ scale 0.1 0.1 $ Text "Pressione Enter para continuar"]
+
+desenhaJogador :: Jogador -> Imagens -> Picture
+desenhaJogador (x, y) imagens = Translate (fromIntegral x) (fromIntegral y) $ head imagens
+
+desenhaInimigo :: Inimigo -> Imagens -> Picture
+desenhaInimigo (x, y) imagens = Translate (fromIntegral x) (fromIntegral y) $ imagens !! 1
+
+desenhaAlcapao :: Alcapao -> Imagens -> Picture
+desenhaAlcapao (x, y) imagens = Translate (fromIntegral x) (fromIntegral y) $ imagens !! 2
+
+desenhaEstrela :: Estrela -> Imagens -> Picture
+desenhaEstrela (x, y) imagens = Translate (fromIntegral x) (fromIntegral y) $ imagens !! 3
+
+desenhaColecionavel :: Colecionavel -> Imagens -> Picture
+desenhaColecionavel (x, y) imagens = Translate (fromIntegral x) (fromIntegral y) $ imagens !! 4
+
+
+
+novoEstadoJogo :: Key -> Jogo -> Jogo
+novoEstadoJogo k (Jogo (x, y) inimigos alcapoes estrelas colecionaveis) =
+  let p = (x', y')
+      x' = max (min (x + dx) 340) (-340)
+      y' = max (min (y + dy) 340) (-340)
+      (dx, dy) = case k of
+                   (SpecialKey KeyUp) -> (0, 10)
+                   (SpecialKey KeyDown) -> (0, (-10))
+                   (SpecialKey KeyLeft) -> (-10, 0)
+                   (SpecialKey KeyRight) -> (10, 0)
+                   _ -> (0, 0)
+  in Jogo p inimigos alcapoes estrelas colecionaveis
+
+evento :: Event -> Mundo -> IO Mundo
+evento (EventKey k Down _ _) w = novoEstadoGloss k w
+evento _ w = return w  
+ 
+
+mudaOP :: Opcao -> Opcao
+mudaOP op = case op of
+  Jogar -> Sair
+  Sair -> Jogar
+
+
+novoEstadoGloss :: Key -> Mundo -> IO Mundo
+novoEstadoGloss k w = case menu w of
+  ModoJogo -> do
+    imagens <- loadImages
+    let (Jogo (x, y) inimigos alcapoes estrelas colecionaveis) = jogo w
+    return $ if null inimigos
+      then w { menu = VenceuJogo }
+      else w { jogo = novoEstadoJogo k (jogo w) }
+  VenceuJogo -> case k of
+    (SpecialKey KeyEnter) -> estadoInicial (imagens w)
+    _ -> return w
+  (Opcoes op) ->
+    case k of
+      (SpecialKey KeyEnter) -> case op of
+                                 Jogar -> return $ w { menu = ModoJogo }
+                                 Sair -> error "Fim de Jogo"
+      (SpecialKey KeyDown) -> return $ w { menu = Opcoes (mudaOP op) }
+      (SpecialKey KeyUp) -> return $ w { menu = Opcoes (mudaOP op) }
+      _ -> return w
+
+
+
+tempoMundo :: Float -> Mundo -> Mundo
+tempoMundo t w = w {tempo=t + tempo w}
+
+main :: IO ()
+main = do
+  imagens <- loadImages
+  mundoInicial <- estadoInicial imagens
+  forever $ do
+    mundoAtualizado <- play janela (greyN 0.8) fr mundoInicial desenhaEstado evento tempoMundo
+    return mundoAtualizado

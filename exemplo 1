@@ -1,0 +1,228 @@
+module Main where
+import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Game
+import Graphics.Gloss.Interface.Pure.Game
+import Data.Maybe
+import System.Exit (exitFailure)
+import LI12324
+import Tarefa1
+import Tarefa2
+import Tarefa3
+import Tarefa4
+
+mapa_final :: Mapa
+mapa_final = Mapa ((0, 0), Norte) (5,5) matriz_mapa1
+
+-- Tamanho de mapa para a tela definida: 28x15
+matriz_mapa1 = [
+             [Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma],
+             [Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma],
+             [Escada,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Escada],
+             [Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio],
+             [Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Alcapao,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma],
+             [Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio],
+             [Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio],
+             [Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma],
+             [Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio],
+             [Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio],
+             [Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma],
+             [Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio],
+             [Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio,Vazio],
+             [Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma],
+             [Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma,Plataforma]
+             ]
+
+inimigos1 :: [Personagem]
+inimigos1 = [Personagem {velocidade = (2.0,2.0), tipo = Fantasma, posicao = (50.0, 50.0), direcao = Norte, tamanho = (2.0, 2.0), emEscada = False, ressalta = True, vida = 1, pontos = 0, aplicaDano = (False, 0)}]
+
+jogador1 :: Personagem
+jogador1 = Personagem {velocidade = (3.0,3.0), tipo = Jogador,  posicao = (100.0, 100.0), direcao = Norte, tamanho = (2.0, 2.0), emEscada = False, ressalta = False, vida = 3, pontos = 0, aplicaDano = (False, 0)}
+
+colecionaveis1 :: [(Colecionavel, Posicao)]
+colecionaveis1 = [(Moeda, (4.0,3.0))]
+
+jogoInicialFinal :: Jogo
+jogoInicialFinal = Jogo {mapa = mapa_final, inimigos = inimigos1, colecionaveis = colecionaveis1, jogador = jogador1}
+
+-- Desenha
+data Estado
+  = Estado
+  { jogo :: Jogo,
+    imagens :: Imagens,
+    modo :: Modo    
+  }
+
+data Modo
+  = Menu Opcoes
+  | EmJogo
+  | FimJogo
+
+data Opcoes
+  = OpcaoJogar
+  | OpcaoSair
+
+
+largura_janela :: Int
+largura_janela = 1920
+
+altura_janela :: Int
+altura_janela = 1080
+
+tamanho_bloco :: Int
+tamanho_bloco = 8
+
+tamanho_bloco_float :: Float
+tamanho_bloco_float = fromIntegral tamanho_bloco
+
+largura_janela_float :: Float
+largura_janela_float = fromIntegral largura_janela
+
+altura_janela_float :: Float
+altura_janela_float = fromIntegral altura_janela
+
+largura_mapa_float :: Mapa -> Float
+largura_mapa_float (Mapa _ _ matriz_mapa) = fromIntegral $ length (head matriz_mapa) * tamanho_bloco
+
+altura_mapa_float :: Mapa -> Float
+altura_mapa_float (Mapa _ _ matriz_mapa) = fromIntegral $ length matriz_mapa * tamanho_bloco
+
+
+desenha :: Estado -> IO Picture
+desenha estado@(Estado {modo = Menu OpcaoJogar}) = return $ Pictures [Color blue opcaoJogar, opcaoSair]
+desenha estado@(Estado {modo = Menu OpcaoSair}) = return $ Pictures [opcaoJogar, Color blue opcaoSair]
+desenha estado@(Estado {jogo = jogo, imagens = imgs, modo = EmJogo}) = 
+                                                       return $ Scale 8 8 $ translacao $ Pictures (
+                                                         (Pictures (desenhaMapa matriz_blocos (0,0) imgs))
+                                                       : (Pictures (desenhaColecionaveis (colecionaveis jogo) imgs))
+                                                       : (desenhaPersonagens ((inimigos jogo)++[jogador jogo]) imgs)
+                                                       )
+  where matriz_blocos = selecionaMatrizMapa $ mapa jogo
+        translacao = Translate (-(largura_mapa_float (mapa jogo))/2) ((altura_mapa_float (mapa jogo))/2.3)
+
+opcaoJogar :: Picture
+opcaoJogar = Translate (-150) (100) $ Text "Jogar"
+
+opcaoSair :: Picture
+opcaoSair = Translate (-150) (-100) $ Text "Sair"
+
+selecionaMatrizMapa :: Mapa -> [[Bloco]]
+selecionaMatrizMapa (Mapa _ _ matriz_blocos) = matriz_blocos
+
+desenhaPersonagens :: [Personagem] -> Imagens -> [Picture]
+desenhaPersonagens personagens imgs = map (\personagem -> desenhaPersonagem personagem imgs) personagens
+
+desenhaPersonagem :: Personagem -> Imagens -> Picture
+desenhaPersonagem (Personagem {tipo = Jogador, posicao = (x,y)}) imgs = Scale 0.5 0.5 $ Translate (realToFrac x) (-(realToFrac y)) $ getImagem MarioIMG imgs
+desenhaPersonagem (Personagem {tipo = MacacoMalvado, posicao = (x,y)}) imgs = Scale 0.5 0.5  $ Translate (realToFrac x) (-(realToFrac y)) $ getImagem MacacoIMG imgs
+desenhaPersonagem (Personagem {tipo = Fantasma, posicao = (x,y)}) imgs = Scale 0.5 0.5 $ Translate (realToFrac x) (-(realToFrac y)) $ getImagem FantasmaIMG imgs
+
+desenhaColecionaveis :: [(Colecionavel, Posicao)] -> Imagens -> [Picture]
+desenhaColecionaveis colecionaveis imgs = map (\colecionavel -> desenhaColecionavel colecionavel imgs) colecionaveis
+
+desenhaColecionavel :: (Colecionavel, Posicao) -> Imagens -> Picture
+desenhaColecionavel (colecionavel, (x, y)) imgs = Scale 0.5 0.5 $ Translate (realToFrac x) (-(realToFrac y)) $ getImagem MoedaIMG imgs
+
+desenhaMapa :: [[Bloco]] -> (Int, Int)-> Imagens -> [Picture]
+desenhaMapa [] _ _ = []
+desenhaMapa (linha:linhas) (x, y) imgs = (translacao (Pictures (desenhaLinha linha (x, y) imgs))) : desenhaMapa linhas (x, y-1) imgs
+    where translacao = Translate 0 (fromIntegral (y*tamanho_bloco))
+
+desenhaLinha :: [Bloco] -> (Int, Int) -> Imagens -> [Picture]
+desenhaLinha [] _ _ = []
+desenhaLinha (bloco:blocos) (x, y) imgs = (translacao (blocoParaImagem bloco imgs)) : desenhaLinha blocos (x+1, y) imgs
+    where translacao = Translate (fromIntegral (x*tamanho_bloco)) 0
+
+blocoParaImagem :: Bloco -> Imagens -> Picture
+blocoParaImagem Plataforma imgs = getImagem PlataformaIMG imgs
+blocoParaImagem Escada imgs = getImagem EscadaIMG imgs
+blocoParaImagem Alcapao imgs = getImagem AlcapaoIMG imgs
+blocoParaImagem Vazio imgs = getImagem VazioIMG imgs
+
+
+getImagem :: Imagem -> Imagens -> Picture
+getImagem chave dicionario = fromJust $ lookup chave dicionario
+
+data Imagem = MarioIMG | PlataformaIMG | EscadaIMG | AlcapaoIMG | VazioIMG | MacacoIMG | FantasmaIMG | MoedaIMG
+  deriving (Eq, Show)
+type Imagens = [(Imagem, Picture)]
+
+carregarIMG :: IO Imagens
+carregarIMG = do 
+  mario <- loadBMP "jogador.bmp"
+  plataforma <- loadBMP "plataforma.bmp"
+  alcapao <- loadBMP "alcapao.bmp"
+  fantasma <- loadBMP "inimigo.bmp"
+  moeda <- loadBMP "coleccionavel.bmp"
+  return $ [(MoedaIMG, moeda), (MarioIMG, mario), (FantasmaIMG, fantasma), (PlataformaIMG, plataforma), (AlcapaoIMG, alcapao)]
+
+
+-- Reage
+reage :: Event -> Estado -> IO Estado
+reage evento estado@(Estado {modo = Menu opcao}) = reageMenu evento estado
+reage evento estado@(Estado {modo = EmJogo}) = reageJogo evento estado
+
+reageJogo :: Event -> Estado -> IO Estado
+reageJogo (EventKey (SpecialKey KeyUp) Down _ _) estado = 
+    novoJogo Saltar estado
+reageJogo (EventKey (SpecialKey KeyDown) Down _ _) estado = 
+    novoJogo Descer estado
+reageJogo (EventKey (SpecialKey KeyRight) Down _ _ ) estado = 
+    novoJogo AndarDireita estado
+reageJogo (EventKey (SpecialKey KeyLeft) Down _ _ ) estado = 
+    novoJogo AndarEsquerda estado
+reageJogo (EventKey (SpecialKey KeyEsc) Down _ _ ) estado@(Estado {imagens = i, jogo = j}) =
+    return (Estado {modo = Menu OpcaoJogar, imagens = i, jogo = j})
+reageJogo (EventKey (SpecialKey _) Up _ _) estado = 
+    novoJogo Parar estado
+reageJogo _ estado = return estado
+
+novoJogo :: Acao -> Estado -> IO Estado
+novoJogo acao (Estado {jogo = jogo@(Jogo { mapa = mapa , inimigos = listadeinimigos , colecionaveis = listadecolecionaveis , jogador = jogador}), imagens = imagens, modo = m}) = 
+    return (Estado {jogo = movimenta 10 1 (atualiza (decideDirecaoFantasma 10 (length listadeinimigos)) (Just acao) jogo), imagens = imagens, modo = m})
+
+reageMenu :: Event -> Estado -> IO Estado
+reageMenu (EventKey (SpecialKey KeyEnter) Down _ _) (Estado {modo = Menu OpcaoJogar, imagens = i , jogo = m}) =
+    return (Estado {modo = EmJogo, imagens = i, jogo = m})
+reageMenu (EventKey (SpecialKey KeyEnter) Down _ _) (Estado {modo = Menu OpcaoSair}) = 
+    exitFailure
+reageMenu (EventKey (SpecialKey KeyDown) Down _ _) (Estado {modo = Menu OpcaoJogar, imagens = i , jogo = m}) =
+    return (Estado {modo = Menu OpcaoSair, imagens = i , jogo = m})
+reageMenu (EventKey (SpecialKey KeyUp) Down _ _) (Estado {modo = Menu OpcaoSair, imagens = i , jogo = m}) =
+    return (Estado {modo = Menu OpcaoJogar, imagens = i , jogo = m})
+reageMenu _ estado = return estado
+
+decideReal :: [Int] -> [Maybe Acao]
+decideReal [] = []
+decideReal (x:xs)
+    | x < div (2^(10*31)) 4 = Just AndarDireita : decideReal xs
+    | div (2^(10*31)) 4 < x && x < div (2*(2^(10*31))) 4 = Just AndarEsquerda : decideReal xs
+    | div (2*(2^(10*31))) 4 < x && x < div (3*(2^(10*31))) 4 = Just Parar : decideReal xs
+    | otherwise = Nothing : decideReal xs
+
+decideDirecaoFantasma :: Int -> Int -> [Maybe Acao]
+decideDirecaoFantasma x y = decideReal (geraAleatorios x y)
+
+-- Tempo
+tempo :: Float -> Estado -> IO Estado
+tempo t (Estado {jogo = jogo@(Jogo {colecionaveis = c ,mapa = mapa1 ,inimigos = listadeinimigos
+                ,jogador = jogador@(Personagem {tipo= Jogador , posicao = (posx,posy), direcao = d, tamanho = (tamx,tamy), emEscada = u, ressalta = o, vida = vida, pontos = pontos, aplicaDano = (bool,int)})})
+        ,imagens = imagens
+        ,modo = EmJogo}) = 
+            let movimentacao = movimenta 10 (realToFrac t) jogo in
+            do 
+            return (Estado { jogo = movimentacao, imagens = imagens, modo = EmJogo})
+tempo t estado = return estado
+
+janela :: Display
+janela = InWindow "Donkey Kong" (largura_janela, altura_janela) (0,0)
+
+background :: Color
+background = black
+
+frameRate :: Int
+frameRate = 60
+
+main :: IO ()
+main = do 
+  imgs <- carregarIMG
+  playIO janela background frameRate (Estado {jogo = jogoInicialFinal, imagens = imgs, modo = Menu OpcaoJogar}) desenha reage tempo
