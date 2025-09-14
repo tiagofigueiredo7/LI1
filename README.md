@@ -1,4 +1,4 @@
-# Donkey Kong
+# Donkey Kong (Português)
 
 Projeto desenvolvido em grupo na UC de LI1 no primeiro ano da Licenciatura em Engenharia Informática.
 
@@ -37,6 +37,51 @@ cabal repl --build-depends=QuickCheck,doctest --with-ghc=doctest
 ## Documentação
 
 Pode gerar a documentação com o [Haddock](https://haskell-haddock.readthedocs.io/).
+
+```bash
+cabal haddock
+```
+
+
+# Donkey Kong (English)
+
+Group project developed for the LI course.
+
+## Executable
+
+You can compile and run the program using the `build` and `run` commands from `cabal`.
+
+```bash
+cabal run primate-kong
+```
+
+## Interpreter
+
+You can open the Haskell interpreter (GHCi) using cabal with the project automatically loaded.
+
+```bash
+cabal repl
+```
+
+## Tests
+
+The project uses the [HUnit](https://hackage.haskell.org/package/HUnit) library for unit testing.
+
+You can run the tests using the following command.
+
+```bash
+
+cabal test
+```
+
+If you want to run the examples from the documentation as unit tests, use the [Doctest](https://hackage.haskell.org/package/doctest) library.
+
+```bash
+cabal repl --build-depends=QuickCheck,doctest --with-ghc=doctest
+```
+
+## Documentation
+You can generate the documentation with [Haddock](https://haskell-haddock.readthedocs.io/).
 
 ```bash
 cabal haddock
